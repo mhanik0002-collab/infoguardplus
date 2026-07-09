@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClickSafe Bangladesh</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --sidebar-bg: #12172B;
+            --sidebar-hover: #1e293b;
+            --bg-color: #F4F7FE;
+            --text-main: #1E293B;
+            --text-muted: #94A3B8;
+            --card-radius: 24px;
+        }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; }
+        .sidebar { width: 280px; position: fixed; top: 0; left: 0; height: 100vh; background-color: var(--sidebar-bg); color: white; padding: 20px; overflow-y: auto; }
+        .main-content { margin-left: 280px; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        .page-content-wrapper { padding: 30px; flex-grow: 1; }
+        .sidebar a { color: #94A3B8; text-decoration: none; display: flex; align-items: center; padding: 12px 15px; border-radius: 12px; margin-bottom: 5px; transition: 0.3s; font-size: 15px; }
+        .sidebar a:hover { background-color: var(--sidebar-hover); color: white; }
+        .sidebar a.active { background-color: #0EA5E9; color: white; }
+        .sidebar a i { width: 30px; font-size: 18px; }
+        .sidebar .nav-group { font-size: 10px; text-transform: uppercase; color: #64748B; margin: 25px 0 10px 15px; font-weight: bold; letter-spacing: 1px; }
+        .logo-box { background: linear-gradient(135deg, #0EA5E9 0%, #22C55E 100%); width: 40px; height: 40px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 20px; }
+        .brand-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 35px; padding-left: 5px; }
+        
+        .card-custom { background: white; border-radius: var(--card-radius); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05); border: none; padding: 25px; margin-bottom: 25px; }
+        .top-navbar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 0 30px; height: 80px; border-bottom: 1px solid #F1F5F9; flex-shrink: 0; }
+        .page-title { font-size: 20px; font-weight: 700; text-transform: capitalize; margin: 0; color: #0F172A; }
+        
+        .metric-card { background: white !important; border-left: 4px solid var(--card-color, #0EA5E9); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05); transition: transform 0.2s; display: flex; flex-direction: column; justify-content: space-between; position: relative; color: inherit; }
+        .metric-card:hover { transform: translateY(-3px); }
+        .metric-card h5 { font-size: 10px !important; text-transform: uppercase; font-weight: 700 !important; color: #94A3B8 !important; margin-bottom: 8px !important; opacity: 1 !important; }
+        .metric-card-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 5px; }
+        .metric-card h2 { font-size: 24px !important; font-weight: 700 !important; color: #1E293B !important; margin: 0; line-height: 1; }
+        .metric-icon-wrap { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--card-bg, #F0F9FF); color: var(--card-color, #0EA5E9); font-size: 18px; }
+        .metric-icon { font-size: 16px !important; opacity: 1 !important; position: static !important; right: auto !important; bottom: auto !important; }
+        
+        .badge-indicator { position: absolute; top: -5px; right: -5px; background: #EF4444; color: white; font-size: 10px; border-radius: 10px; padding: 2px 6px; font-weight: bold; }
+        .btn-icon { background: #F8FAFC; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #64748B; cursor: pointer; position: relative; transition: 0.2s; }
+        .btn-icon:hover { background: #E2E8F0; color: #0EA5E9; }
+        .search-bar { background: #F8FAFC; border: none; border-radius: 99px; padding: 8px 20px; display: flex; align-items: center; gap: 10px; width: 250px; }
+        .search-bar input { border: none; outline: none; background: transparent; width: 100%; font-size: 13px; }
+        .search-bar input:focus { box-shadow: none; }
+        .search-bar:focus-within { box-shadow: 0 0 0 2px #93C5FD; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .table-light { background-color: #F8FAFC !important; }
+        .table-light th { border-bottom: none; color: #64748B; font-weight: 600; font-size: 13px; text-transform: uppercase; padding-top: 15px; padding-bottom: 15px; }
+        .table td { padding-top: 15px; padding-bottom: 15px; border-bottom-color: #F1F5F9; }
+        .form-control, .form-select { border-color: #E2E8F0; padding: 10px 15px; border-radius: 12px; }
+        .form-control:focus, .form-select:focus { border-color: #0EA5E9; box-shadow: 0 0 0 0.2rem rgba(14,165,233,0.25); }
+        .btn-primary { background-color: #0EA5E9; border-color: #0EA5E9; }
+        .btn-primary:hover { background-color: #0284C7; border-color: #0284C7; }
+        @media print {
+            .sidebar, .top-navbar, .btn-print, .alert { display: none !important; }
+            .main-content { margin-left: 0 !important; width: 100% !important; }
+            .page-content-wrapper { padding: 0 !important; }
+            body { background: white; }
+            .card-custom, .metric-card { box-shadow: none; border: 1px solid #eee; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="brand-wrap">
+            <div class="logo-box">C</div>
+            <div>
+                <div style="line-height: 1;">ClickSafe</div>
+                <div style="font-size: 12px; color: #94A3B8; font-weight: normal;">InfoGuard+</div>
+            </div>
+        </div>
+
+        <a href="/app?page=dashboard" class="<%= page === 'dashboard' ? 'active' : '' %>"><i class="fas fa-home"></i> Dashboard</a>
+
+        <% if(user.role === 'admin') { %>
+            <div class="nav-group">Academic</div>
+            <a href="/app?page=manage_programs" class="<%= page === 'manage_programs' ? 'active' : '' %>"><i class="fas fa-book"></i> Manage Programs</a>
+            <a href="/app?page=manage_modules" class="<%= page === 'manage_modules' ? 'active' : '' %>"><i class="fas fa-layer-group"></i> Manage Modules</a>
+            
+            <div class="nav-group">Users</div>
+            <a href="/app?page=manage_volunteers" class="<%= page === 'manage_volunteers' ? 'active' : '' %>"><i class="fas fa-hands-helping"></i> Manage Volunteers</a>
+            <a href="/app?page=manage_students" class="<%= page === 'manage_students' ? 'active' : '' %>"><i class="fas fa-user-graduate"></i> Manage Students</a>
+            
+            <div class="nav-group">Requests</div>
+            <a href="/app?page=notifications" class="<%= page === 'notifications' ? 'active' : '' %>"><i class="fas fa-bell"></i> Approvals & Leaves</a>
+            
+            <div class="nav-group">Others</div>
+            <a href="/app?page=notify" class="<%= page === 'notify' ? 'active' : '' %>"><i class="fas fa-paper-plane"></i> Send Notification</a>
+            <a href="/app?page=feedback" class="<%= page === 'feedback' ? 'active' : '' %>"><i class="fas fa-comment-dots"></i> Feedback</a>
+        
+        <% } else if(user.role === 'volunteer') { %>
+            <div class="nav-group">Academic</div>
+            <a href="/app?page=take_attendance" class="<%= page === 'take_attendance' ? 'active' : '' %>"><i class="fas fa-calendar-check"></i> Take Attendance</a>
+            <a href="/app?page=manage_exams" class="<%= page === 'manage_exams' ? 'active' : '' %>"><i class="fas fa-file-alt"></i> Manage Exams</a>
+            <a href="/app?page=view_attendance" class="<%= page === 'view_attendance' ? 'active' : '' %>"><i class="fas fa-list"></i> View Attendance Log</a>
+            
+            <div class="nav-group">Requests</div>
+            <a href="/app?page=request_absence" class="<%= page === 'request_absence' ? 'active' : '' %>"><i class="fas fa-calendar-minus"></i> Request Absence</a>
+            
+            <div class="nav-group">Others</div>
+            <a href="/app?page=volunteer_notifs" class="<%= page === 'volunteer_notifs' ? 'active' : '' %>"><i class="fas fa-bell"></i> Notifications</a>
+            <a href="/app?page=feedback" class="<%= page === 'feedback' ? 'active' : '' %>"><i class="fas fa-comment-dots"></i> Feedback</a>
+        
+        <% } else if(user.role === 'student') { %>
+            <div class="nav-group">Academic</div>
+            <a href="/app?page=my_attendance" class="<%= page === 'my_attendance' ? 'active' : '' %>"><i class="fas fa-calendar-check"></i> My Attendance</a>
+            <a href="/app?page=exam_results" class="<%= page === 'exam_results' ? 'active' : '' %>"><i class="fas fa-chart-bar"></i> My Exam Results</a>
+            
+            <div class="nav-group">Requests</div>
+            <a href="/app?page=request_absence" class="<%= page === 'request_absence' ? 'active' : '' %>"><i class="fas fa-calendar-minus"></i> Request Absence</a>
+            
+            <div class="nav-group">Others</div>
+            <a href="/app?page=student_notifs" class="<%= page === 'student_notifs' ? 'active' : '' %>"><i class="fas fa-bell"></i> Notifications</a>
+            <a href="/app?page=feedback" class="<%= page === 'feedback' ? 'active' : '' %>"><i class="fas fa-comment-dots"></i> Feedback</a>
+        <% } %>
+
+        <div style="margin-top: 50px;">
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; text-align: center;">
+                <i class="fas fa-shield-alt text-success mb-2" style="font-size: 24px;"></i>
+                <div style="font-size: 13px; font-weight: bold; color: white;">Stay Alert, Stay Safe!</div>
+                <div style="font-size: 11px; color: #94A3B8; margin-top: 5px;">InfoGuard+ Campaign</div>
+            </div>
+        </div>
+
+        <a href="/logout" class="text-danger mt-4"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="main-content">
+        <div class="top-navbar">
+            <h2 class="page-title"><%= page.replace(/_/g, ' ') %></h2>
+            
+            <div class="search-bar">
+                <i class="fas fa-search text-muted"></i>
+                <input type="text" placeholder="Search...">
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <div class="btn-icon"><i class="fas fa-calendar"></i></div>
+                <div class="btn-icon">
+                    <i class="fas fa-bell"></i>
+                    <% if (typeof unread_count !== 'undefined' && unread_count > 0) { %>
+                        <span class="badge-indicator"><%= unread_count %></span>
+                    <% } %>
+                </div>
+                <div class="d-flex align-items-center gap-2 ms-2 bg-white px-2 py-1 rounded-pill" style="border: 1px solid #E2E8F0;">
+                    <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(user.full_name) %>&background=0EA5E9&color=fff" class="avatar">
+                    <div style="line-height: 1.2;">
+                        <div class="fw-bold" style="font-size: 14px;"><%= user.full_name %></div>
+                        <div class="text-muted text-uppercase" style="font-size: 10px;"><%= user.role %></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-content-wrapper">
+
+        <% if (success_msg) { %>
+            <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm border-0 border-start border-5 border-success" role="alert">
+                <i class="fas fa-check-circle me-2"></i> <%= success_msg %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% } %>
+
+        <!-- PAGE CONTENT STARTS -->
+        <% if (page === 'dashboard') { %>
+            <div class="d-flex justify-content-end mb-3">
+                <button class="btn btn-outline-primary rounded-3 btn-print fw-semibold" onclick="window.print()">
+                    <i class="fas fa-print me-1"></i> Print Report
+                </button>
+            </div>
+            
+            <div class="row g-4 mb-4">
+                <% 
+                   const cards = [];
+                   if (user.role === 'admin') {
+                       cards.push({ color: '#0EA5E9', title: 'Total Programs', val: typeof total_programs !== 'undefined' ? total_programs : 0, icon: 'fa-book' });
+                       cards.push({ color: '#22C55E', title: 'Total Modules', val: typeof total_modules !== 'undefined' ? total_modules : 0, icon: 'fa-layer-group' });
+                       cards.push({ color: '#FF9C00', title: 'Total Students', val: typeof total_students !== 'undefined' ? total_students : 0, icon: 'fa-user-graduate' });
+                       cards.push({ color: '#6366F1', title: 'Total Volunteers', val: typeof total_volunteers !== 'undefined' ? total_volunteers : 0, icon: 'fa-hands-helping' });
+                       cards.push({ color: '#FF4C61', title: 'Attendance Logs', val: typeof att_count !== 'undefined' ? att_count : 0, icon: 'fa-calendar-check' });
+                       cards.push({ color: '#EF4444', title: 'Pending Volunteers', val: typeof pending_volunteers !== 'undefined' ? pending_volunteers : 0, icon: 'fa-user-clock', link: '/app?page=notifications' });
+                   } else if (user.role === 'volunteer') {
+                       cards.push({ color: '#0EA5E9', title: 'Total Programs', val: typeof total_programs !== 'undefined' ? total_programs : 0, icon: 'fa-book' });
+                       cards.push({ color: '#22C55E', title: 'Total Modules', val: typeof total_modules !== 'undefined' ? total_modules : 0, icon: 'fa-layer-group' });
+                       cards.push({ color: '#FF4C61', title: 'Attendance Logs', val: typeof att_count !== 'undefined' ? att_count : 0, icon: 'fa-calendar-check' });
+                   } else {
+                       cards.push({ color: '#22C55E', title: 'My Total Att.', val: typeof total_total !== 'undefined' ? total_total : 0, icon: 'fa-calendar' });
+                       cards.push({ color: '#0EA5E9', title: 'My Present Att.', val: typeof total_present !== 'undefined' ? total_present : 0, icon: 'fa-check-circle' });
+                   }
+                %>
+                <% cards.forEach(c => { %>
+                    <div class="col-md-4 col-sm-6">
+                        <% if(c.link) { %><a href="<%= c.link %>" class="text-decoration-none"><% } %>
+                        <div class="metric-card" style="background-color: <%= c.color %>;">
+                            <h5 class="fw-normal mb-1" style="font-size: 15px; opacity: 0.9;"><%= c.title %></h5>
+                            <h2 class="fw-bold mb-0" style="font-size: 32px;"><%= c.val %></h2>
+                            <i class="fas <%= c.icon %> metric-icon"></i>
+                        </div>
+                        <% if(c.link) { %></a><% } %>
+                    </div>
+                <% }) %>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-8">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-4">Session Attendance Overview</h5>
+                        <div style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="attChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-4">Quiz Performance</h5>
+                        <div style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="scoreChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                // Dummy Data for Charts to visualize Campaign Metrics
+                const ctxAtt = document.getElementById('attChart').getContext('2d');
+                new Chart(ctxAtt, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                        datasets: [
+                            { label: 'Present', data: [65, 78, 90, 85, 95], borderColor: '#22C55E', backgroundColor: 'rgba(34, 197, 94, 0.1)', fill: true, tension: 0.4 },
+                            { label: 'Absent', data: [15, 10, 5, 8, 2], borderColor: '#EF4444', backgroundColor: 'transparent', tension: 0.4 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                });
+
+                const ctxScore = document.getElementById('scoreChart').getContext('2d');
+                new Chart(ctxScore, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Excellent', 'Good', 'Needs Impr.'],
+                        datasets: [{ data: [45, 35, 20], backgroundColor: ['#22C55E', '#0EA5E9', '#EF4444'], borderWidth: 0 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+                });
+            </script>
+
+        <% } else if (page === 'manage_programs') { %>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-3">Add Program</h5>
+                        <form action="/app?page=manage_programs" method="POST">
+                            <input type="hidden" name="action" value="add_program">
+                            <label class="form-label small fw-semibold">Program Name</label>
+                            <input type="text" name="name" class="form-control rounded-3 bg-light mb-3" required placeholder="e.g. Cyber Hygiene Basics">
+                            <button type="submit" class="btn btn-primary rounded-3 w-100">Add Program</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-3">Existing Programs</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light"><tr><th>Name</th><th class="text-end">Action</th></tr></thead>
+                                <tbody>
+                                    <% programs.forEach(p => { %>
+                                        <tr>
+                                            <td class="fw-medium"><%= p.name %></td>
+                                            <td class="text-end">
+                                                <a href="/app?page=manage_programs&delete=true&table=programs&id=<%= p._id %>" class="btn btn-sm btn-outline-danger rounded-3"><i class="fas fa-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <% } else if (page === 'manage_modules') { %>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-3">Add Module</h5>
+                        <form action="/app?page=manage_modules" method="POST">
+                            <input type="hidden" name="action" value="add_module">
+                            <label class="form-label small fw-semibold">Program</label>
+                            <select name="program_id" class="form-select rounded-3 bg-light mb-3" required>
+                                <% programs.forEach(p => { %><option value="<%= p._id %>"><%= p.name %></option><% }) %>
+                            </select>
+                            <label class="form-label small fw-semibold">Module Name</label>
+                            <input type="text" name="name" class="form-control rounded-3 bg-light mb-3" required placeholder="e.g. Phishing Defense">
+                            <button type="submit" class="btn btn-primary rounded-3 w-100">Add Module</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-3">Existing Modules</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light"><tr><th>Module Name</th><th>Program</th><th class="text-end">Action</th></tr></thead>
+                                <tbody>
+                                    <% modules.forEach(m => { %>
+                                        <tr>
+                                            <td class="fw-medium"><%= m.name %></td>
+                                            <td class="text-muted small"><%= m.program_id ? m.program_id.name : 'N/A' %></td>
+                                            <td class="text-end">
+                                                <a href="/app?page=manage_modules&delete=true&table=modules&id=<%= m._id %>" class="btn btn-sm btn-outline-danger rounded-3"><i class="fas fa-trash"></i></a>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <% } else if (page === 'manage_volunteers') { %>
+            <div class="card-custom">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Volunteers Roster</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light"><tr><th>Volunteer</th><th>Contact</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                        <tbody>
+                            <% volunteers.forEach(v => { %>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(v.full_name) %>&background=E2E8F0" class="avatar">
+                                            <div>
+                                                <div class="fw-bold"><%= v.full_name %></div>
+                                                <div class="text-muted small"><%= v.gender %></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="small"><i class="fas fa-envelope text-muted me-1"></i> <%= v.email %></div>
+                                        <div class="small"><i class="fas fa-phone text-muted me-1"></i> <%= v.phone %></div>
+                                    </td>
+                                    <td>
+                                        <% if(v.status === 'Pending') { %><span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                                        <% } else if(v.status === 'Approved') { %><span class="badge bg-success rounded-pill">Approved</span>
+                                        <% } else { %><span class="badge bg-danger rounded-pill">Rejected</span><% } %>
+                                    </td>
+                                    <td class="text-end">
+                                        <% if(v.status === 'Pending') { %>
+                                            <form action="/app?page=manage_volunteers" method="POST" class="d-inline">
+                                                <input type="hidden" name="action" value="update_volunteer_status">
+                                                <input type="hidden" name="volunteer_id" value="<%= v._id %>">
+                                                <input type="hidden" name="status" value="Approved">
+                                                <button type="submit" class="btn btn-sm btn-success rounded-3"><i class="fas fa-check"></i></button>
+                                            </form>
+                                            <form action="/app?page=manage_volunteers" method="POST" class="d-inline">
+                                                <input type="hidden" name="action" value="update_volunteer_status">
+                                                <input type="hidden" name="volunteer_id" value="<%= v._id %>">
+                                                <input type="hidden" name="status" value="Rejected">
+                                                <button type="submit" class="btn btn-sm btn-danger rounded-3"><i class="fas fa-times"></i></button>
+                                            </form>
+                                        <% } %>
+                                        <a href="/app?page=manage_volunteers&delete=true&table=volunteers&id=<%= v._id %>" class="btn btn-sm btn-outline-danger rounded-3 ms-1"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        <% } else if (page === 'manage_students') { %>
+            <div class="card-custom">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Enrolled Students</h5>
+                    <button class="btn btn-primary rounded-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                        <i class="fas fa-plus me-1"></i> Add New
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light"><tr><th>Student</th><th>Institution</th><th>Program</th><th class="text-end">Action</th></tr></thead>
+                        <tbody>
+                            <% students.forEach(s => { %>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(s.full_name) %>&background=F8FAFC" class="avatar">
+                                            <div>
+                                                <div class="fw-bold"><%= s.full_name %></div>
+                                                <div class="text-muted small"><%= s.email %></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="small fw-medium"><%= s.institution %></span></td>
+                                    <td><span class="badge bg-info text-dark rounded-pill"><%= s.program_id ? s.program_id.name : 'N/A' %></span></td>
+                                    <td class="text-end">
+                                        <a href="/app?page=manage_students&delete=true&table=students&id=<%= s._id %>" class="btn btn-sm btn-outline-danger rounded-3"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Add Student Modal -->
+            <div class="modal fade" id="addStudentModal" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content rounded-4 border-0">
+                  <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Add Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <form action="/app?page=manage_students" method="POST">
+                        <input type="hidden" name="action" value="add_student">
+                        <div class="mb-3"><input type="text" name="full_name" class="form-control rounded-3 bg-light" placeholder="Full Name" required></div>
+                        <div class="mb-3"><input type="email" name="email" class="form-control rounded-3 bg-light" placeholder="Email" required></div>
+                        <div class="mb-3">
+                            <select name="gender" class="form-select rounded-3 bg-light" required>
+                                <option value="">Gender...</option><option value="Male">Male</option><option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div class="mb-3"><input type="text" name="institution" class="form-control rounded-3 bg-light" placeholder="Institution" required></div>
+                        <div class="mb-3">
+                            <select name="program_id" class="form-select rounded-3 bg-light" required>
+                                <option value="">Select Program...</option>
+                                <% programs.forEach(p => { %><option value="<%= p._id %>"><%= p.name %></option><% }) %>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary rounded-3 w-100">Save Student</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+        <% } else if (page === 'manage_attendance' || page === 'take_attendance') { %>
+            <div class="card-custom mb-4">
+                <h5 class="fw-bold mb-3">Filter Session</h5>
+                <form action="/app" method="GET" class="row g-3 align-items-end">
+                    <input type="hidden" name="page" value="<%= page %>">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold">Date</label>
+                        <input type="date" name="fetch_date" class="form-control rounded-3 bg-light" value="<%= typeof fetch_date !== 'undefined' ? fetch_date : '' %>" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">Program</label>
+                        <select name="fetch_program" class="form-select rounded-3 bg-light" required>
+                            <option value="">Choose...</option>
+                            <% programs.forEach(p => { %><option value="<%= p._id %>" <%= (typeof fetch_program !== 'undefined' && fetch_program == p._id) ? 'selected' : '' %>><%= p.name %></option><% }) %>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold">Module</label>
+                        <select name="fetch_module" class="form-select rounded-3 bg-light" required>
+                            <option value="">Choose...</option>
+                            <% modules.forEach(m => { %><option value="<%= m._id %>" <%= (typeof fetch_module !== 'undefined' && fetch_module == m._id) ? 'selected' : '' %>><%= m.name %></option><% }) %>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-dark w-100 rounded-3">Fetch</button>
+                    </div>
+                </form>
+            </div>
+
+            <% if (typeof fetched_students !== 'undefined' && fetched_students.length > 0) { %>
+                <div class="card-custom">
+                    <h5 class="fw-bold mb-3">Mark Attendance</h5>
+                    <form action="/app?page=<%= page %>" method="POST">
+                        <input type="hidden" name="action" value="save_attendance">
+                        <input type="hidden" name="date" value="<%= fetch_date %>">
+                        <input type="hidden" name="program_id" value="<%= fetch_program %>">
+                        <input type="hidden" name="module_id" value="<%= fetch_module %>">
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light"><tr><th>Student Name</th><th class="text-end">Status</th></tr></thead>
+                                <tbody>
+                                    <% fetched_students.forEach(s => { %>
+                                        <tr>
+                                            <td class="fw-medium"><%= s.full_name %></td>
+                                            <td class="text-end">
+                                                <div class="btn-group" role="group">
+                                                    <input type="radio" class="btn-check" name="attendance[<%= s._id %>]" id="pres_<%= s._id %>" value="Present" <%= existing_attendance[s._id] === 'Present' ? 'checked' : '' %> required>
+                                                    <label class="btn btn-outline-success rounded-start-3 btn-sm" for="pres_<%= s._id %>">Present</label>
+                                                  
+                                                    <input type="radio" class="btn-check" name="attendance[<%= s._id %>]" id="abs_<%= s._id %>" value="Absent" <%= existing_attendance[s._id] === 'Absent' ? 'checked' : '' %>>
+                                                    <label class="btn btn-outline-danger rounded-end-3 btn-sm" for="abs_<%= s._id %>">Absent</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="submit" class="btn btn-primary rounded-3 px-4 mt-2">Save Attendance</button>
+                    </form>
+                </div>
+            <% } %>
+
+        <% } else if (page === 'manage_exams') { %>
+            <div class="card-custom mb-4">
+                <h5 class="fw-bold mb-3">Select Exam Module</h5>
+                <form action="/app" method="GET" class="row g-3 align-items-end">
+                    <input type="hidden" name="page" value="manage_exams">
+                    <div class="col-md-5">
+                        <label class="form-label small fw-semibold">Program</label>
+                        <select name="fetch_program" class="form-select rounded-3 bg-light" required>
+                            <option value="">Choose...</option>
+                            <% programs.forEach(p => { %><option value="<%= p._id %>" <%= (typeof fetch_program !== 'undefined' && fetch_program == p._id) ? 'selected' : '' %>><%= p.name %></option><% }) %>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label small fw-semibold">Module</label>
+                        <select name="fetch_module" class="form-select rounded-3 bg-light" required>
+                            <option value="">Choose...</option>
+                            <% modules.forEach(m => { %><option value="<%= m._id %>" <%= (typeof fetch_module !== 'undefined' && fetch_module == m._id) ? 'selected' : '' %>><%= m.name %></option><% }) %>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-dark w-100 rounded-3">Fetch</button>
+                    </div>
+                </form>
+            </div>
+
+            <% if (typeof exam_students !== 'undefined' && exam_students.length > 0) { %>
+                <div class="card-custom">
+                    <h5 class="fw-bold mb-3">Enter Scores</h5>
+                    <form action="/app?page=manage_exams" method="POST">
+                        <input type="hidden" name="action" value="save_scores">
+                        <input type="hidden" name="module_id" value="<%= fetch_module %>">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light"><tr><th>Student Name</th><th width="150" class="text-end">Score (0-100)</th></tr></thead>
+                                <tbody>
+                                    <% exam_students.forEach(s => { %>
+                                        <tr>
+                                            <td class="fw-medium"><%= s.full_name %></td>
+                                            <td class="text-end">
+                                                <input type="number" name="score[<%= s._id %>]" class="form-control rounded-3 bg-light text-center" min="0" max="100" value="<%= existing_scores[s._id] !== undefined ? existing_scores[s._id] : '' %>">
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="submit" class="btn btn-primary rounded-3 px-4 mt-2">Save Scores</button>
+                    </form>
+                </div>
+            <% } %>
+
+        <% } else if (page === 'request_absence') { %>
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-3">Submit Absence Request</h5>
+                        <form action="/app?page=request_absence" method="POST">
+                            <input type="hidden" name="action" value="request_absence">
+                            <label class="form-label small fw-semibold">Date</label>
+                            <input type="date" name="date" class="form-control rounded-3 bg-light mb-3" required>
+                            <label class="form-label small fw-semibold">Reason</label>
+                            <textarea name="message" class="form-control rounded-3 bg-light mb-3" rows="4" required></textarea>
+                            <button type="submit" class="btn btn-primary rounded-3 w-100">Submit Request</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-3">My Leave History</h5>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="table-light"><tr><th>Date</th><th>Status</th></tr></thead>
+                                <tbody>
+                                    <% my_leaves.forEach(l => { %>
+                                        <tr>
+                                            <td><div class="fw-medium"><%= l.date %></div><div class="text-muted small"><%= l.message %></div></td>
+                                            <td>
+                                                <% if(l.status === 'Pending') { %><span class="badge bg-warning text-dark">Pending</span>
+                                                <% } else if(l.status === 'Approved') { %><span class="badge bg-success">Approved</span>
+                                                <% } else { %><span class="badge bg-danger">Declined</span><% } %>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <% } else if (page === 'notifications') { %>
+            <div class="row g-4">
+                <div class="col-md-12">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-3 text-danger"><i class="fas fa-user-clock me-2"></i> Pending Volunteer Approvals</h5>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <tbody>
+                                    <% pending_volunteers_list.forEach(v => { %>
+                                        <tr>
+                                            <td class="fw-bold"><%= v.full_name %> <span class="text-muted fw-normal">(<%= v.email %>)</span></td>
+                                            <td class="text-end">
+                                                <form action="/app?page=notifications" method="POST" class="d-inline">
+                                                    <input type="hidden" name="action" value="update_volunteer_status"><input type="hidden" name="volunteer_id" value="<%= v._id %>"><input type="hidden" name="status" value="Approved">
+                                                    <button type="submit" class="btn btn-sm btn-success rounded-3 px-3"><i class="fas fa-check me-1"></i> Approve</button>
+                                                </form>
+                                                <form action="/app?page=notifications" method="POST" class="d-inline">
+                                                    <input type="hidden" name="action" value="update_volunteer_status"><input type="hidden" name="volunteer_id" value="<%= v._id %>"><input type="hidden" name="status" value="Rejected">
+                                                    <button type="submit" class="btn btn-sm btn-danger rounded-3 px-3"><i class="fas fa-times me-1"></i> Reject</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                    <% if(pending_volunteers_list.length === 0) { %><tr><td colspan="2" class="text-muted">No pending approvals.</td></tr><% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-calendar-minus me-2"></i> Absence Requests</h5>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="table-light"><tr><th>User</th><th>Date</th><th>Reason</th><th>Status</th><th class="text-end">Action</th></tr></thead>
+                                <tbody>
+                                    <% leaves.forEach(l => { %>
+                                        <tr>
+                                            <td><div class="fw-bold"><%= l.user_id ? l.user_id.full_name : 'Unknown' %></div><div class="badge bg-secondary"><%= l.role %></div></td>
+                                            <td class="fw-medium"><%= l.date %></td>
+                                            <td class="text-muted small" style="max-width: 250px;"><%= l.message %></td>
+                                            <td>
+                                                <% if(l.status === 'Pending') { %><span class="badge bg-warning text-dark">Pending</span>
+                                                <% } else if(l.status === 'Approved') { %><span class="badge bg-success">Approved</span>
+                                                <% } else { %><span class="badge bg-danger">Declined</span><% } %>
+                                            </td>
+                                            <td class="text-end">
+                                                <% if(l.status === 'Pending') { %>
+                                                    <form action="/app?page=notifications" method="POST" class="d-inline">
+                                                        <input type="hidden" name="action" value="update_leave"><input type="hidden" name="leave_id" value="<%= l._id %>"><input type="hidden" name="status" value="Approved">
+                                                        <button type="submit" class="btn btn-sm btn-outline-success rounded-3"><i class="fas fa-check"></i></button>
+                                                    </form>
+                                                    <form action="/app?page=notifications" method="POST" class="d-inline">
+                                                        <input type="hidden" name="action" value="update_leave"><input type="hidden" name="leave_id" value="<%= l._id %>"><input type="hidden" name="status" value="Declined">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-3"><i class="fas fa-times"></i></button>
+                                                    </form>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <% } else if (page === 'notify') { %>
+            <div class="card-custom" style="max-width: 600px;">
+                <h5 class="fw-bold mb-3">Broadcast Message</h5>
+                <form action="/app?page=notify" method="POST">
+                    <input type="hidden" name="action" value="send_notification">
+                    <label class="form-label small fw-semibold">Target Audience</label>
+                    <select name="audience" class="form-select rounded-3 bg-light mb-3" required>
+                        <option value="all">Everyone</option><option value="student">All Students</option><option value="volunteer">All Volunteers</option>
+                    </select>
+                    <label class="form-label small fw-semibold">Message</label>
+                    <textarea name="message" class="form-control rounded-3 bg-light mb-3" rows="4" required placeholder="Type the broadcast message here..."></textarea>
+                    <button type="submit" class="btn btn-primary rounded-3 w-100"><i class="fas fa-paper-plane me-1"></i> Send Notification</button>
+                </form>
+            </div>
+
+        <% } else if (page === 'volunteer_notifs' || page === 'student_notifs') { %>
+            <div class="card-custom">
+                <h5 class="fw-bold mb-4">Notifications</h5>
+                <% if(notifs.length === 0) { %>
+                    <div class="alert alert-light text-muted">No new notices.</div>
+                <% } else { %>
+                    <div class="list-group list-group-flush border-0">
+                        <% notifs.forEach(n => { %>
+                            <div class="list-group-item border-0 bg-light rounded-3 mb-2 p-3">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="bg-white p-2 rounded-circle shadow-sm text-primary"><i class="fas fa-bell"></i></div>
+                                    <div>
+                                        <div class="fw-medium text-dark"><%= n.message %></div>
+                                        <div class="small text-muted mt-1"><i class="far fa-clock me-1"></i> <%= new Date(n.created_at).toLocaleString() %></div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+
+        <% } else if (page === 'view_attendance') { %>
+            <div class="card-custom">
+                <h5 class="fw-bold mb-3">Recent Attendance Logs</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light"><tr><th>Date</th><th>Module</th><th>Student</th><th class="text-end">Status</th></tr></thead>
+                        <tbody>
+                            <% logs.forEach(l => { %>
+                                <tr>
+                                    <td class="fw-medium"><%= l.date %></td>
+                                    <td><span class="badge bg-light text-dark"><%= l.module_id ? l.module_id.name : 'N/A' %></span></td>
+                                    <td class="fw-bold"><%= l.student_id ? l.student_id.full_name : 'N/A' %></td>
+                                    <td class="text-end">
+                                        <% if(l.status === 'Present') { %><span class="badge bg-success rounded-pill px-3">Present</span>
+                                        <% } else { %><span class="badge bg-danger rounded-pill px-3">Absent</span><% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        <% } else if (page === 'my_attendance') { %>
+            <div class="card-custom">
+                <h5 class="fw-bold mb-3">My Attendance Log</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light"><tr><th>Date</th><th>Module</th><th class="text-end">Status</th></tr></thead>
+                        <tbody>
+                            <% my_att.forEach(l => { %>
+                                <tr>
+                                    <td class="fw-medium"><%= l.date %></td>
+                                    <td><span class="badge bg-light text-dark"><%= l.module_id ? l.module_id.name : 'N/A' %></span></td>
+                                    <td class="text-end">
+                                        <% if(l.status === 'Present') { %><span class="badge bg-success rounded-pill px-3">Present</span>
+                                        <% } else { %><span class="badge bg-danger rounded-pill px-3">Absent</span><% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        <% } else if (page === 'exam_results') { %>
+            <div class="row g-4">
+                <% if(scores.length === 0) { %>
+                    <div class="col-12"><div class="alert alert-info border-0 rounded-3"><i class="fas fa-info-circle me-2"></i> No quiz scores available yet.</div></div>
+                <% } %>
+                <% scores.forEach(s => { %>
+                    <div class="col-md-4">
+                        <div class="card-custom text-center" style="border-top: 4px solid <%= s.score >= 80 ? '#22C55E' : (s.score >= 50 ? '#FF9C00' : '#EF4444') %>;">
+                            <div class="text-muted small fw-semibold text-uppercase mb-2">Module Score</div>
+                            <h6 class="fw-bold mb-3"><%= s.module_id ? s.module_id.name : 'N/A' %></h6>
+                            <h1 class="display-4 fw-bold mb-0 <%= s.score >= 80 ? 'text-success' : (s.score >= 50 ? 'text-warning' : 'text-danger') %>"><%= s.score %></h1>
+                            <div class="text-muted small mt-1">out of 100</div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+
+        <% } else if (page === 'feedback') { %>
+            <div class="card-custom" style="max-width: 600px;">
+                <h5 class="fw-bold mb-3">Send Feedback</h5>
+                <p class="text-muted small">Share your thoughts on the campaign or report any issues directly to the InfoGuard+ admin team.</p>
+                <form action="/app?page=feedback" method="POST">
+                    <input type="hidden" name="action" value="send_feedback">
+                    <textarea name="message" class="form-control rounded-3 bg-light mb-3" rows="5" required placeholder="Write your feedback here..."></textarea>
+                    <button type="submit" class="btn btn-primary rounded-3 w-100"><i class="fas fa-paper-plane me-1"></i> Submit Feedback</button>
+                </form>
+            </div>
+        <% } %>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
